@@ -19,9 +19,7 @@ import com.tradingtols.br.scraper.service.Companias;
 public class ScraperDentalExpress extends ScraperClazz
 {
 	private static final String RESULTS_GRID = ".dfd-results-grid";
-	private static final String PRODUCTS_SEARCH_RESULT = ".products-search-result";
-	private static final String CARD = ".product-item.responsive.product-model-item";
-	private static final String URL = "https://www.dentaltix.com/pt/search-results?keyword=%s&_page=1";
+	private static final String URL = "https://dentalexpress.pt/#df08/fullscreen/m=and";
 
 	public ScraperDentalExpress(ProdutoRepository repo) {super(repo);}
 
@@ -31,10 +29,11 @@ public class ScraperDentalExpress extends ScraperClazz
 			Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
 			Page page = browser.newPage();
 			page.setDefaultNavigationTimeout(60000);
+			page.navigate(URL);
 			
-			handleProfisionalWarning(page);
 			handleCookieConsent(page);			
-			handleFirstSearchBarClick(page);
+			handleProfisionalWarning(page);
+//			handleFirstSearchBarClick(page);
 
 			processPage(page, searchList);
 			browser.close();
@@ -49,7 +48,7 @@ public class ScraperDentalExpress extends ScraperClazz
 			System.out.println("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 			System.out.println("43-[ScraperDentalExpress] - search = " + search);
 		
-			String searchURL = String.format(URL,search);
+			String searchURL = String.format("%s%s%s", URL,"&q=",search);
 			page.navigate(searchURL);
 			
 			try {
@@ -61,47 +60,34 @@ public class ScraperDentalExpress extends ScraperClazz
 			}
 			page.waitForLoadState();
 			
-			boolean hasMorePages = true;
-			boolean bottomUp = false;
 			boolean hasMoreContent = true;
 			int previousItemCount = 0;
 			
-			do {//dfd-card dfd-card-preset-product dfd-card-type-pro_dept
+			do {
 				Locator resultContainer = page.locator(RESULTS_GRID);
 				if (!resultContainer.isVisible()) return;
-				
-				if (bottomUp) {
-					resultContainer.evaluate("el => el.scrollIntoView({ block: 'start', behavior: 'smooth' })");
-				} else {
-					resultContainer.evaluate("el => el.scrollIntoView({ block: 'end', behavior: 'smooth' })");
-				}
-				bottomUp = !bottomUp;
-				
+
+				resultContainer.evaluate("el => el.scrollIntoView({ block: 'end', behavior: 'smooth' })");
 				page.waitForTimeout(500);
-//				page.waitForTimeout(500);
-//				resultContainer.evaluate("el => el.scrollIntoView({ block: 'end', behavior: 'smooth' })");
+				
 				Locator cards = resultContainer.locator(".dfd-card.dfd-card-preset-product.dfd-card-type-pro_dept");
+				int currentItemCount = cards.count();
+				
 				try {
-					if (cards.count() > 0) processCards(page, cards);
+					if (currentItemCount > previousItemCount) {
+						processCards(page, cards);
+					} else {
+						hasMoreContent = false;
+					}
+					previousItemCount = currentItemCount;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				page.waitForTimeout(5000);
-				hasMorePages = getNextPage(page);
-			} while (hasMorePages);
+			} while (hasMoreContent);
 		}
 		
 	}
-
-	private void handleFirstSearchBarClick(Page page) {
-		Locator searchTopBar = page.locator("#search_mini_form");
-		if(searchTopBar.isVisible()) {
-			searchTopBar.locator("#search").click();
-//				searchTopBar.locator("#search").fill(searchList.getFirst());;
-		}
-	}
-	
-
 
 	private void processCards(Page page, Locator cards) {
 		for (int i = 0; i < cards.count(); i++) {
@@ -112,73 +98,39 @@ public class ScraperDentalExpress extends ScraperClazz
 			String href = "";
 			String externalId = "";
 			
-			/*iting for locator(".products-search-result").locator(".product-item.responsive.product-model-item")
-			 * .nth(4).locator(".flag-brand-container > span")
-			 * for locator(".products-search-result").locator(".product-item.responsive.product-model-item")
-			 * .nth(1).locator("a").first()			
-			 */
-			Locator link = cards.nth(i).locator("a.image-container");
-			if (link.isVisible()) {
-				//link = link.locator("a").first();
-				href = link.getAttribute("href");
-				Locator img = link.locator("img");
-				if(img.isVisible()) {
-					
-					imgSrc = img.getAttribute("src");
-					externalId = splitTextoByLastChar(imgSrc, '=');
+			externalId = splitTextoByLastChar(cards.nth(i).getAttribute("dfd-value-dfid"), '@');
+			href = cards.nth(i).getAttribute("dfd-value-link");
+			
+			Locator img = cards.nth(i).locator(".dfd-card-media > .dfd-card-thumbnail > img");
+			if(img.isVisible()) {
+				imgSrc = img.getAttribute("src");
+			}
+			Locator divTitle = cards.nth(i).locator(".dfd-card-content.dfd-card-flex > .dfd-card-title ");
+			if(divTitle.isVisible()) {
+				desc = divTitle.innerText();
+				Locator priceContainer = cards.nth(i).locator(".dfd-card-pricing");
+				Locator oldPrice = priceContainer.locator(".dfd-card-price");
+				Locator newPrice = priceContainer.locator(".dfd-card-price.dfd-card-price--sale");
+				if(oldPrice.isVisible()) {
+					price = newPrice.innerText();
 				}
-			}
-			
-			Locator linkTitle = cards.nth(i).locator("a.product-item-title > strong");
-			if(linkTitle.isVisible()) {
-				desc = linkTitle.innerText();
-			}
-			
-			/*
-			 *  waiting for locator(".products-search-result")
-			 *  .locator(".product-item.responsive.product-model-item")
-			 *  .nth(2).locator(".flag-brand-container > span")
-			 */
-			Locator spanBrand = cards.nth(i).locator(".flag-brand-container > span");
-			if(spanBrand.isVisible()) {
-				brand = splitTextoByLastChar(spanBrand.innerText(), ' ');
-			}
-			/*
-			 * 
-- waiting for locator(".products-search-result")
-.locator(".product-item.responsive.product-model-item").first().locator(".mini-price-rating > p")
-			 */
-			
-			/*
-			 * - waiting for locator(".products-search-result")
-			 * .locator(".product-item.responsive.product-model-item")
-			 * .nth(1).locator(".mini-price-rating > p > del")
-			 */
-			Locator priceContainer = cards.nth(i).locator(".mini-price-rating > p");
-			Locator oldPrice = priceContainer.locator("del");
-			if(oldPrice.isVisible()) {
-				price = priceContainer.innerText();
-				price = price.substring(oldPrice.innerText().length());
+				
 			}
 			var produto = new ProdutoDentalix(0L, Companias.DENTALIX.getNome(), desc, externalId, href, price, imgSrc, brand, new Date() );
 			repo.save(produto);
 			System.out.println("\n*******************");
 			System.out.println(produto.toString());
-			
 		}
 		
 	}
 
-
-	private boolean getNextPage(Page page) {
-		Locator buttonNextPage = page.locator(".p-paginator-next.p-paginator-element.p-link");
-		if(!buttonNextPage.isVisible()) return false;
-		
-		buttonNextPage.click();
-		
-		return true;
-		
-	}
+//	private void handleFirstSearchBarClick(Page page) {
+//		Locator searchTopBar = page.locator("#search_mini_form");
+//		if(searchTopBar.isVisible()) {
+//			searchTopBar.locator("#search").click();
+////				searchTopBar.locator("#search").fill(searchList.getFirst());;
+//		}
+//	}
 
 	@Override
 	public	void handleProfisionalWarning(Page page) {
