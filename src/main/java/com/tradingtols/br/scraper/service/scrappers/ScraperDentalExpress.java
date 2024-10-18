@@ -106,10 +106,7 @@ public class ScraperDentalExpress extends ScraperClazz
 			if(img.isVisible()) {
 				imgSrc = img.getAttribute("src");
 			}
-			/*
-			 * (".dfd-results-grid").locator(".dfd-card.dfd-card-preset-product.dfd-card-type-pro_dept").first()
-			 * .locator(".dfd-card-pricing").locator(".dfd-card-price")
-			 */
+
 			Locator divTitle = cards.nth(i).locator(".dfd-card-content.dfd-card-flex > .dfd-card-title ");
 			if(divTitle.isVisible()) {
 				desc = divTitle.innerText();
@@ -130,14 +127,6 @@ public class ScraperDentalExpress extends ScraperClazz
 		}
 		
 	}
-
-//	private void handleFirstSearchBarClick(Page page) {
-//		Locator searchTopBar = page.locator("#search_mini_form");
-//		if(searchTopBar.isVisible()) {
-//			searchTopBar.locator("#search").click();
-////				searchTopBar.locator("#search").fill(searchList.getFirst());;
-//		}
-//	}
 
 	@Override
 	public	void handleProfisionalWarning(Page page) {
@@ -165,13 +154,8 @@ public class ScraperDentalExpress extends ScraperClazz
 			buttonDecline.click();
 	}
 	
-	
-	
 	@Override
 	public List<Produto> scrap(String search) {
-		
-		
-		// TODO Auto-generated method stub
 		return null;
 	}
 }
