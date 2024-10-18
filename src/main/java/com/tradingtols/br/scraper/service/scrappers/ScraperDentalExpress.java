@@ -75,7 +75,7 @@ public class ScraperDentalExpress extends ScraperClazz
 				
 				try {
 					if (currentItemCount > previousItemCount) {
-						processCards(page, cards);
+						processCards(page, cards, previousItemCount);
 					} else {
 						hasMoreContent = false;
 					}
@@ -89,11 +89,12 @@ public class ScraperDentalExpress extends ScraperClazz
 		
 	}
 
-	private void processCards(Page page, Locator cards) {
-		for (int i = 0; i < cards.count(); i++) {
+	private void processCards(Page page, Locator cards, int pos) {
+		
+		for (int i = pos; i < cards.count(); i++) {
+
 			String imgSrc = "";
 			String desc = "";
-			String brand = "";
 			String price = "";
 			String href = "";
 			String externalId = "";
@@ -122,7 +123,7 @@ public class ScraperDentalExpress extends ScraperClazz
 				}
 				
 			}
-			var produto = new ProdutoDentalexpress(0L, Companias.DENTALIX.getNome(), desc, externalId, href, price, imgSrc, brand, new Date() );
+			var produto = new ProdutoDentalexpress(0L, Companias.DENTALEXPRESS.getNome(), desc, externalId, href, price, imgSrc, "", new Date() );
 			repo.save(produto);
 			System.out.println("\n*******************");
 			System.out.println(produto.toString());
