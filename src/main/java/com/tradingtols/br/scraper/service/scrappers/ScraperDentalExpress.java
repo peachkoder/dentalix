@@ -102,6 +102,7 @@ public class ScraperDentalExpress extends ScraperClazz
 			externalId = splitTextoByLastChar(cards.nth(i).getAttribute("dfd-value-dfid"), '@');
 			href = cards.nth(i).getAttribute("dfd-value-link");
 			
+			// TODO: rever, não está a encontrar "src"
 			Locator img = cards.nth(i).locator(".dfd-card-media > .dfd-card-thumbnail > img");
 			if(img.isVisible()) {
 				imgSrc = img.getAttribute("src");
