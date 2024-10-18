@@ -11,7 +11,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.tradingtols.br.scraper.model.entity.Produto;
-import com.tradingtols.br.scraper.model.entity.ProdutoDentalix;
+import com.tradingtols.br.scraper.model.entity.ProdutoDentalexpress;
 import com.tradingtols.br.scraper.model.repository.ProdutoRepository;
 import com.tradingtols.br.scraper.service.Companias;
 
@@ -69,7 +69,7 @@ public class ScraperDentalExpress extends ScraperClazz
 
 				resultContainer.evaluate("el => el.scrollIntoView({ block: 'end', behavior: 'smooth' })");
 				page.waitForTimeout(500);
-				
+
 				Locator cards = resultContainer.locator(".dfd-card.dfd-card-preset-product.dfd-card-type-pro_dept");
 				int currentItemCount = cards.count();
 				
@@ -105,18 +105,24 @@ public class ScraperDentalExpress extends ScraperClazz
 			if(img.isVisible()) {
 				imgSrc = img.getAttribute("src");
 			}
+			/*
+			 * (".dfd-results-grid").locator(".dfd-card.dfd-card-preset-product.dfd-card-type-pro_dept").first()
+			 * .locator(".dfd-card-pricing").locator(".dfd-card-price")
+			 */
 			Locator divTitle = cards.nth(i).locator(".dfd-card-content.dfd-card-flex > .dfd-card-title ");
 			if(divTitle.isVisible()) {
 				desc = divTitle.innerText();
 				Locator priceContainer = cards.nth(i).locator(".dfd-card-pricing");
 				Locator oldPrice = priceContainer.locator(".dfd-card-price");
 				Locator newPrice = priceContainer.locator(".dfd-card-price.dfd-card-price--sale");
-				if(oldPrice.isVisible()) {
+				if(newPrice.isVisible()) {
 					price = newPrice.innerText();
+				} else {
+					price = oldPrice.first().innerText();
 				}
 				
 			}
-			var produto = new ProdutoDentalix(0L, Companias.DENTALIX.getNome(), desc, externalId, href, price, imgSrc, brand, new Date() );
+			var produto = new ProdutoDentalexpress(0L, Companias.DENTALIX.getNome(), desc, externalId, href, price, imgSrc, brand, new Date() );
 			repo.save(produto);
 			System.out.println("\n*******************");
 			System.out.println(produto.toString());
@@ -135,11 +141,12 @@ public class ScraperDentalExpress extends ScraperClazz
 	@Override
 	public	void handleProfisionalWarning(Page page) {
 		System.out.println("...handleProfissionalWarning...");
-		ElementHandle checkbox = page.querySelector("#professional-input-custom");
-		if(checkbox.isVisible()) {
+//		ElementHandle checkbox = page.querySelector("#professional-input-custom");
+		ElementHandle checkbox = page.querySelector(".custom-control-input.check-confirm-professional");
+		if(checkbox!=null && checkbox.isVisible()) {
 			try {
 				checkbox.click();
-				Locator button = page.locator("btn.btn-primary.action-confirm-professional");
+				Locator button = page.locator(".btn.btn-primary.action-confirm-professional");
 				if (button.isVisible()) {
 					button.click();
 				}
@@ -152,7 +159,7 @@ public class ScraperDentalExpress extends ScraperClazz
 	
 	@Override
 	public void handleCookieConsent(Page page) {
-		Locator buttonDecline = page.locator("#CybotCookiebotDialogBodyButtonDecline");
+		Locator buttonDecline = page.locator(".sc-dcJsrY.fCNVay");
 		if (buttonDecline.isVisible())
 			buttonDecline.click();
 	}

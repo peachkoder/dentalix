@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.tradingtols.br.scraper.model.repository.BuscaPadraoRepository;
 import com.tradingtols.br.scraper.model.repository.ProdutoRepository;
-import com.tradingtols.br.scraper.service.scrappers.ScraperDentaleader;
+import com.tradingtols.br.scraper.service.scrappers.ScraperDentalExpress;
 
 @Service
 public class ScrapService {
@@ -38,7 +38,7 @@ public class ScrapService {
 		
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor();){
 			for (List<String> list : splits) {
-				executor.execute(()-> (new ScraperDentaleader(produtoRepository)).scrap(list));
+				executor.execute(()-> (new ScraperDentalExpress(produtoRepository)).scrap(list));
 			}
 			
 			executor.shutdown();

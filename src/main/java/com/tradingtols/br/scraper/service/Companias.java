@@ -2,7 +2,8 @@ package com.tradingtols.br.scraper.service;
 
 public enum Companias {
 	DENTALEADER ("DentaLeader"),
-	DENTALIX ("Dentalix");
+	DENTALIX ("Dentalix"),
+	DENTALEXPRESS ("Dentalexpress");
 
 	String nome = "";
 	Companias(String nome) {

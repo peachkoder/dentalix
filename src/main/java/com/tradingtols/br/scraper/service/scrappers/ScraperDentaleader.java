@@ -181,12 +181,12 @@ public class ScraperDentaleader extends ScraperClazz {
 		}
 	}
 	
-	private void rolarPgina(Page page, int x) {
-		
-		page.evaluate("window.scrollTo(" + x + ", document.body.scrollHeight)");	
-		
-		
-	}
+//	private void rolarPgina(Page page, int x) {
+//		
+//		page.evaluate("window.scrollTo(" + x + ", document.body.scrollHeight)");	
+//		
+//		
+//	}
 
 	private String getExternalId(Locator card) {
 		String attribute = card.getAttribute("data-dfid");
