@@ -17,12 +17,14 @@ public class Produto {
 	@GeneratedValue(strategy = GenerationType.TABLE)
 	private Long id;
 	private String compania;
+	@Column(columnDefinition = "TEXT")
 	private String description;
 	@Column(name = "external_id")
 	private String externalId;
+	@Column(columnDefinition = "TEXT")
 	private String link;
 	private String price;
-	@Column(name = "src_image")
+	@Column(name = "src_image", columnDefinition = "TEXT")
 	private String srcImage;
 	private String brand;
 	private Date data;

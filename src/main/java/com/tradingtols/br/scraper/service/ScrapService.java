@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.tradingtols.br.scraper.model.repository.BuscaPadraoRepository;
 import com.tradingtols.br.scraper.model.repository.ProdutoRepository;
 import com.tradingtols.br.scraper.service.scrappers.ScraperDentalExpress;
+import com.tradingtols.br.scraper.service.scrappers.ScraperDentalix;
 
 @Service
 public class ScrapService {
@@ -34,11 +35,12 @@ public class ScrapService {
 		
 		if (buscas==null || buscas.size()==0) return;
 		
-		var splits = splitBuscas(buscas, 5, true);
+		var splits = splitBuscas(buscas, 8, true);
 		
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor();){
 			for (List<String> list : splits) {
 				executor.execute(()-> (new ScraperDentalExpress(produtoRepository)).scrap(list));
+				executor.execute(()-> (new ScraperDentalix(produtoRepository)).scrap(list));
 			}
 			
 			executor.shutdown();
@@ -63,9 +65,9 @@ public class ScrapService {
 		var lista = new ArrayList<>(buscas);		
 		if(shuffle) Collections.shuffle(lista);
 		
-		int listSize = lista.size(); //51
-		int chunckSize = listSize / n; //51/4 = 12
-		int modList = listSize % chunckSize; //3
+		int listSize = lista.size(); //368
+		int chunckSize = listSize / n; //368/10 = 36
+		int modList = listSize % chunckSize; //8
 		int complement = modList == 0 ? 0 : 1;
 		int totalSplits = n + complement;
 		
@@ -75,7 +77,8 @@ public class ScrapService {
 		}
 		
 		for (int i = 0; i < lista.size(); i++) {
-			splits.get(i/chunckSize).add(lista.get(i));
+			String texto = lista.get(i).replace(' ', '+');
+			splits.get(i/chunckSize).add(texto);
 		}
 		return splits;
 	}

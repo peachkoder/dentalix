@@ -55,36 +55,37 @@ public class ScraperDentalExpress extends ScraperClazz
 				Locator searchBox = page.locator("#dfd-searchbox-id-zyF4E-input");
 				if(searchBox.isVisible()) searchBox.fill(search);
 				page.waitForSelector(RESULTS_GRID);
+				page.waitForLoadState();
+				
+				boolean hasMoreContent = true;
+				int previousItemCount = 0;
+				
+				do {
+					Locator resultContainer = page.locator(RESULTS_GRID);
+					if (!resultContainer.isVisible()) return;
+	
+					resultContainer.evaluate("el => el.scrollIntoView({ block: 'end', behavior: 'smooth' })");
+					page.waitForTimeout(2000);
+	
+					Locator cards = resultContainer.locator(".dfd-card.dfd-card-preset-product.dfd-card-type-pro_dept");
+					int currentItemCount = cards.count();
+					
+					try {
+						if (currentItemCount > previousItemCount) {
+							processCards(page, cards, previousItemCount);
+						} else {
+							hasMoreContent = false;
+						}
+						previousItemCount = currentItemCount;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					page.waitForTimeout(5000);
+				} while (hasMoreContent);
 			} catch (Exception e) {
 				e.printStackTrace();
-			}
-			page.waitForLoadState();
-			
-			boolean hasMoreContent = true;
-			int previousItemCount = 0;
-			
-			do {
-				Locator resultContainer = page.locator(RESULTS_GRID);
-				if (!resultContainer.isVisible()) return;
-
-				resultContainer.evaluate("el => el.scrollIntoView({ block: 'end', behavior: 'smooth' })");
-				page.waitForTimeout(500);
-
-				Locator cards = resultContainer.locator(".dfd-card.dfd-card-preset-product.dfd-card-type-pro_dept");
-				int currentItemCount = cards.count();
-				
-				try {
-					if (currentItemCount > previousItemCount) {
-						processCards(page, cards, previousItemCount);
-					} else {
-						hasMoreContent = false;
-					}
-					previousItemCount = currentItemCount;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
 				page.waitForTimeout(5000);
-			} while (hasMoreContent);
+			}
 		}
 		
 	}
@@ -102,8 +103,7 @@ public class ScraperDentalExpress extends ScraperClazz
 			externalId = splitTextoByLastChar(cards.nth(i).getAttribute("dfd-value-dfid"), '@');
 			href = cards.nth(i).getAttribute("dfd-value-link");
 			
-			// TODO: rever, não está a encontrar "src"
-			Locator img = cards.nth(i).locator(".dfd-card-media > .dfd-card-thumbnail > img");
+			Locator img = cards.nth(i).locator(".dfd-card-media > div > img");
 			if(img.isVisible()) {
 				imgSrc = img.getAttribute("src");
 			}
@@ -123,8 +123,8 @@ public class ScraperDentalExpress extends ScraperClazz
 			}
 			var produto = new ProdutoDentalexpress(0L, Companias.DENTALEXPRESS.getNome(), desc, externalId, href, price, imgSrc, "", new Date() );
 			repo.save(produto);
-			System.out.println("\n*******************");
-			System.out.println(produto.toString());
+//			System.out.println("\n*******************");
+//			System.out.println(produto.toString());
 		}
 		
 	}
