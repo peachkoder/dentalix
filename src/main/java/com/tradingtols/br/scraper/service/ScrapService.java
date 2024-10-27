@@ -13,6 +13,7 @@ import com.tradingtols.br.scraper.model.repository.BuscaPadraoRepository;
 import com.tradingtols.br.scraper.model.repository.ProdutoRepository;
 import com.tradingtols.br.scraper.service.scrappers.ScraperDentalExpress;
 import com.tradingtols.br.scraper.service.scrappers.ScraperDentalix;
+import com.tradingtols.br.scraper.service.scrappers.ScraperHenryShein;
 
 @Service
 public class ScrapService {
@@ -35,12 +36,13 @@ public class ScrapService {
 		
 		if (buscas==null || buscas.size()==0) return;
 		
-		var splits = splitBuscas(buscas, 8, true);
+		var splits = splitBuscas(buscas, 6, true);
 		
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor();){
 			for (List<String> list : splits) {
-				executor.execute(()-> (new ScraperDentalExpress(produtoRepository)).scrap(list));
-				executor.execute(()-> (new ScraperDentalix(produtoRepository)).scrap(list));
+				executor.execute(()-> (new ScraperHenryShein(produtoRepository)).scrap(list));
+//				executor.execute(()-> (new ScraperDentalExpress(produtoRepository)).scrap(list));
+//				executor.execute(()-> (new ScraperDentalix(produtoRepository)).scrap(list));
 			}
 			
 			executor.shutdown();

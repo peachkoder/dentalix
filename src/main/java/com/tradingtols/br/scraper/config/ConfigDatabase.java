@@ -1,5 +1,11 @@
 package com.tradingtols.br.scraper.config;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -8,12 +14,16 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 
 import com.tradingtols.br.scraper.model.entity.BuscaPadrao;
+import com.tradingtols.br.scraper.model.entity.Marca;
 import com.tradingtols.br.scraper.model.repository.BuscaPadraoRepository;
+import com.tradingtols.br.scraper.model.repository.MarcaRepository;
 
 @Component
 public class ConfigDatabase {
 
 	private BuscaPadraoRepository repo;
+	
+	private MarcaRepository marcaRepository;
 
 	String[] buscas = new String[] { "ortodontia", "dentistica", "cirurgia", "profilaxia", "fluor", "enddontia", "cam",
 			"equipamento", "instrumental", "uniforme", "roupa", "lima", "cone", "cones de gutapecha", "cones de papel",
@@ -39,15 +49,47 @@ public class ConfigDatabase {
 			"inserto", "lamapada", "laser", "motores de implantes", "motores de endodontia", "localizador apical",
 			"cadeira", "mobiliario", "microscopio", "compressor", "aspiraçao", "camara intra-oral", "sensor",
 			"ortopantomografo", "sedaçao", "Raios-X", "termoformavel", "dente", "cera", "maquiagem", "placas base",
-			"fita metalica", "papel articular", "porta-matriz", "vacuo", "silicato", "irm", "tricalcico", "dicalcico",
-			};
+			"fita metalica", "papel articular", "porta-matriz", "vacuo", "silicato", "irm", "tricalcico",
+			"dicalcico", };
 
-
-	public ConfigDatabase(BuscaPadraoRepository repo) {
+	public ConfigDatabase(BuscaPadraoRepository repo, MarcaRepository marcaRepository) {
 		this.repo = repo;
-		List<String> lista = Arrays.asList(buscas);
-		Set<String> set = new HashSet<>(lista);
-		List<BuscaPadrao> buscasPadrao = set.stream().map(s -> new BuscaPadrao(null, s)).toList();
-		repo.saveAll(buscasPadrao);
+		this.marcaRepository = marcaRepository;
+		
+		if (repo.count() < buscas.length) {
+			List<String> lista = Arrays.asList(buscas);
+			Set<String> set = new HashSet<>(lista);
+			List<BuscaPadrao> buscasPadrao = set.stream().map(s -> new BuscaPadrao(null, s)).toList();
+			repo.saveAll(buscasPadrao);
+		}
+		//addMarcas();
+	}
+	
+	public void addMarcas() {
+		List<String> list = new ArrayList<>();
+		char[] c = new char[255];
+		FileReader f = null;
+		
+		try {
+			f = new FileReader("/scraper/src/main/java/com/tradingtols/br/scraper/config/marcas.csv");
+			if (f.read(c)!=-1) {
+				list.add(String.valueOf(c));
+			}
+			System.err.println("marcas");
+			list.stream().forEach(s -> {
+					if (marcaRepository.findByBrand(s).isEmpty())
+						marcaRepository.save(new Marca(0, s));
+				});			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				f.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
 	}
 }

@@ -14,18 +14,21 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.tradingtols.br.scraper.model.entity.Produto;
 import com.tradingtols.br.scraper.model.entity.ProdutoDentalexpress;
+import com.tradingtols.br.scraper.model.entity.ProdutoHenrySchein;
+import com.tradingtols.br.scraper.model.entity.ProdutoMontellano;
 import com.tradingtols.br.scraper.model.entity.categorias.ProdutoCategoria;
 import com.tradingtols.br.scraper.model.repository.ProdutoRepository;
 import com.tradingtols.br.scraper.model.tools.StringToProdutoCategoriaFlagConverter;
 import com.tradingtols.br.scraper.service.Companias;
 
 @Service
-public class ScraperDentalExpress extends ScraperClazz
+public class ScraperMontellano extends ScraperClazz
 {
-	private static final String RESULTS_GRID = ".dfd-results-grid";
-	private static final String URL = "https://dentalexpress.pt/#df08/fullscreen/m=and";
+	private static final String CATALOG_LIST = ".products-catalog__list products-catalog__list--static";
+//	private static final String URL = "https://dentalexpress.pt/#df08/fullscreen/m=and";
+	private static final String URL = "https://www.montellano.pt/products/search?q=%s&subfamilies=true";
 
-	public ScraperDentalExpress(ProdutoRepository repo) {super(repo);}
+	public ScraperMontellano(ProdutoRepository repo) {super(repo);}
 
 	@Override
 	public List<Produto> scrap(List<String> searchList) {
@@ -49,17 +52,19 @@ public class ScraperDentalExpress extends ScraperClazz
 	private void processPage(Page page, List<String> searchList) {
 		
 		for (String search : searchList) {
+//			search = search.replace(" ", "%20");
+			search = search.trim().replace(" ", "+");
 			System.out.println("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-			System.out.println("43-[ScraperDentalExpress] - search = " + search);
+			System.out.println("57-[ScraperMontellano] - search = " + search);
 		
-			String searchURL = String.format("%s%s%s", URL,"&q=",search);
+			String searchURL = String.format(URL,search);
 			page.navigate(searchURL);
 			
 			try {
-				Locator searchBox = page.locator("#dfd-searchbox-id-zyF4E-input");
-				if(searchBox.isVisible()) searchBox.fill(search);
+//				Locator searchBox = page.locator("#dfd-searchbox-id-zyF4E-input");
+//				if(searchBox.isVisible()) searchBox.fill(search);
 				try {
-					page.waitForSelector(RESULTS_GRID);
+					page.waitForSelector(CATALOG_LIST);
 				} catch (Exception e) {
 					// TODO: handle exception
 				}
@@ -69,13 +74,13 @@ public class ScraperDentalExpress extends ScraperClazz
 				int previousItemCount = 0;
 				
 				do {
-					Locator resultContainer = page.locator(RESULTS_GRID);
+					Locator resultContainer = page.locator(CATALOG_LIST);
 					if (!resultContainer.isVisible()) return;
 	
 					resultContainer.evaluate("el => el.scrollIntoView({ block: 'end', behavior: 'smooth' })");
 					page.waitForTimeout(2000);
 	
-					Locator cards = resultContainer.locator(".dfd-card.dfd-card-preset-product.dfd-card-type-pro_dept");
+					Locator cards = resultContainer.locator(".product-card   ");
 					int currentItemCount = cards.count();
 					
 					try {
@@ -103,43 +108,43 @@ public class ScraperDentalExpress extends ScraperClazz
 		
 		for (int i = pos; i < cards.count(); i++) {
 
-			String imgSrc = "", desc = "", price = "", href = "", externalId = "";
+			String imgSrc = "", desc = "", price = "", href = "", externalId = "", brand = "";
+						
+			Locator produtoDetails = cards.nth(i).locator("product-card__details.product-card__details--desktop");
+			if(produtoDetails.isVisible()) {
+				Locator spans = produtoDetails.locator("span");
+				brand = spans.first().innerText();
+				externalId = brand + "_" + spans.locator("span").last().innerText();
+//				externalId = externalId.replace("_Ref. Grupo", "");
+			}
 			
-			externalId = splitTextoByLastChar(cards.nth(i).getAttribute("dfd-value-dfid"), '@');
-			href = cards.nth(i).getAttribute("dfd-value-link");
+			Locator cardImage = cards.nth(i).locator(".product-card__image > a");
+			if(cardImage.isVisible()) {
+				href = cardImage.getAttribute("href");
+				imgSrc = cardImage.locator("img").getAttribute("src");
+			}
+			
+			Locator cardName = cards.nth(i).locator(".product-card__information-wrapper > .product-card__name > a");
+			if(cardName.isVisible()) {
+				desc = cardName.innerText();
+			}
+			
+			Locator cardPriceContainer = cards.nth(i).locator(".product-card__information-wrapper > .product-card__price > .product-card__price--final > span");
+			if(cardPriceContainer.isVisible()) {
+				price = cardPriceContainer.first().innerText() +
+						cardPriceContainer.nth(1).innerText() +
+						cardPriceContainer.last().innerText();
+			}
 			
 			Locator img = cards.nth(i).locator(".dfd-card-media > div > img");
 			if(img.isVisible()) {
 				imgSrc = img.getAttribute("src");
 			}
 
-			Locator divTitle = cards.nth(i).locator(".dfd-card-content.dfd-card-flex > .dfd-card-title ");
-			if(divTitle.isVisible()) {
-				desc = divTitle.innerText();
-				Locator priceContainer = cards.nth(i).locator(".dfd-card-pricing");
-				Locator oldPrice = priceContainer.locator(".dfd-card-price");
-				Locator newPrice = priceContainer.locator(".dfd-card-price.dfd-card-price--sale");
-				if(newPrice.isVisible()) {
-					price = newPrice.innerText();
-				} else {
-					price = oldPrice.first().innerText();
-				}
-				
-			}
-			var produto = new ProdutoDentalexpress(0L, Companias.DENTALEXPRESS.getNome(), desc, externalId, href, price, imgSrc, "", new Date() );
-			
-//			System.out.println("------------------------------------");
+			var produto = new ProdutoMontellano(0L, Companias.MONTELLANO.getNome(), desc, externalId, href, price, imgSrc, brand, new Date() );
 			List<ProdutoCategoria> categorias = extract (desc);
-//			System.out.println(desc);
-//			System.out.println(categorias.size());
-//			System.out.println(categorias.stream().map(pc -> pc.getName()).reduce("",(acc, s) -> acc += s + ";"));
-//			categorias.stream().map(pc -> pc.getName()).reduce("",(acc, s) -> acc += s + ";").ifPresent(s -> System.out.println(s));
-//			System.out.println("------------------------------------");
-			
 			produto.setCategorias(categorias);
 			repo.save(produto);
-//			System.out.println("\n*******************");
-//			System.out.println(produto.toString());
 		}
 		
 	}
@@ -147,15 +152,10 @@ public class ScraperDentalExpress extends ScraperClazz
 	@Override
 	public	void handleProfisionalWarning(Page page) {
 		System.out.println("...handleProfissionalWarning...");
-//		ElementHandle checkbox = page.querySelector("#professional-input-custom");
-		ElementHandle checkbox = page.querySelector(".custom-control-input.check-confirm-professional");
-		if(checkbox!=null && checkbox.isVisible()) {
+		ElementHandle button = page.querySelector(".professional-advice__confirm.button.button--primary");
+		if(button!=null && button.isVisible()) {
 			try {
-				checkbox.click();
-				Locator button = page.locator(".btn.btn-primary.action-confirm-professional");
-				if (button.isVisible()) {
-					button.click();
-				}
+				button.click();
 			} catch (Exception e) {
 				System.err.println("150-[handleProfissionalWarning] - Erro:\n"+
 				e.getLocalizedMessage());

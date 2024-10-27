@@ -14,18 +14,20 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.tradingtols.br.scraper.model.entity.Produto;
 import com.tradingtols.br.scraper.model.entity.ProdutoDentalexpress;
+import com.tradingtols.br.scraper.model.entity.ProdutoHenrySchein;
 import com.tradingtols.br.scraper.model.entity.categorias.ProdutoCategoria;
 import com.tradingtols.br.scraper.model.repository.ProdutoRepository;
 import com.tradingtols.br.scraper.model.tools.StringToProdutoCategoriaFlagConverter;
 import com.tradingtols.br.scraper.service.Companias;
 
 @Service
-public class ScraperDentalExpress extends ScraperClazz
+public class ScraperHenryShein extends ScraperClazz
 {
 	private static final String RESULTS_GRID = ".dfd-results-grid";
-	private static final String URL = "https://dentalexpress.pt/#df08/fullscreen/m=and";
+//	private static final String URL = "https://dentalexpress.pt/#df08/fullscreen/m=and";
+	private static final String URL = "https://henryschein.pt/dental/#6f59/fullscreen/m=and";
 
-	public ScraperDentalExpress(ProdutoRepository repo) {super(repo);}
+	public ScraperHenryShein(ProdutoRepository repo) {super(repo);}
 
 	@Override
 	public List<Produto> scrap(List<String> searchList) {
@@ -50,7 +52,7 @@ public class ScraperDentalExpress extends ScraperClazz
 		
 		for (String search : searchList) {
 			System.out.println("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-			System.out.println("43-[ScraperDentalExpress] - search = " + search);
+			System.out.println("43-[ScraperHenryShein] - search = " + search);
 		
 			String searchURL = String.format("%s%s%s", URL,"&q=",search);
 			page.navigate(searchURL);
@@ -126,20 +128,10 @@ public class ScraperDentalExpress extends ScraperClazz
 				}
 				
 			}
-			var produto = new ProdutoDentalexpress(0L, Companias.DENTALEXPRESS.getNome(), desc, externalId, href, price, imgSrc, "", new Date() );
-			
-//			System.out.println("------------------------------------");
+			var produto = new ProdutoHenrySchein(0L, Companias.HENRY_SCHEIN.getNome(), desc, externalId, href, price, imgSrc, "", new Date() );
 			List<ProdutoCategoria> categorias = extract (desc);
-//			System.out.println(desc);
-//			System.out.println(categorias.size());
-//			System.out.println(categorias.stream().map(pc -> pc.getName()).reduce("",(acc, s) -> acc += s + ";"));
-//			categorias.stream().map(pc -> pc.getName()).reduce("",(acc, s) -> acc += s + ";").ifPresent(s -> System.out.println(s));
-//			System.out.println("------------------------------------");
-			
 			produto.setCategorias(categorias);
 			repo.save(produto);
-//			System.out.println("\n*******************");
-//			System.out.println(produto.toString());
 		}
 		
 	}
@@ -147,7 +139,6 @@ public class ScraperDentalExpress extends ScraperClazz
 	@Override
 	public	void handleProfisionalWarning(Page page) {
 		System.out.println("...handleProfissionalWarning...");
-//		ElementHandle checkbox = page.querySelector("#professional-input-custom");
 		ElementHandle checkbox = page.querySelector(".custom-control-input.check-confirm-professional");
 		if(checkbox!=null && checkbox.isVisible()) {
 			try {

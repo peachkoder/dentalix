@@ -1,8 +1,14 @@
 package com.tradingtols.br.scraper.model.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import com.tradingtols.br.scraper.model.entity.categorias.ProdutoCategoria;
+import com.tradingtols.br.scraper.model.tools.StringToProdutoCategoriaFlagConverter;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,6 +34,8 @@ public class Produto {
 	private String srcImage;
 	private String brand;
 	private Date data;
+	@Convert(converter = StringToProdutoCategoriaFlagConverter.class)
+	private List<ProdutoCategoria> categorias;// = new ArrayList<>();
 	
 	
 	public Produto() {}
@@ -80,6 +88,15 @@ public class Produto {
 
 	public Date getData() {
 		return data;
+	}
+	
+	public List<ProdutoCategoria> getCategorias() {
+		return categorias;
+	}
+
+	public void setCategorias(List<ProdutoCategoria> categorias) {
+		if (categorias == null) return;
+		this.categorias = categorias;
 	}
 
 	@Override
