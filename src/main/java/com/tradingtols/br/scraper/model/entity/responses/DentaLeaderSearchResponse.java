@@ -1,4 +1,4 @@
-package com.tradingtols.br.scraper.model.entity;
+package com.tradingtols.br.scraper.model.entity.responses;
 
 import java.util.ArrayList;
 import java.util.List;

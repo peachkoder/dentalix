@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tradingtols.br.scraper.model.entity.DentaLeaderSearchResponse;
+import com.tradingtols.br.scraper.model.entity.responses.DentaLeaderSearchResponse;
 
 @Service
 public class DentaleaderCurlScraper extends CurlScraper implements Scraper {

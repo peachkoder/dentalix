@@ -24,10 +24,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.tradingtols.br.scraper.model.entity.DentalixSearchResponse;
-import com.tradingtols.br.scraper.model.entity.DentalixSearchResponse.ProductData;
-import com.tradingtols.br.scraper.model.entity.DentalixSearchResponse.ProductList;
-import com.tradingtols.br.scraper.model.entity.DentalixSearchResponse.ProductResponse;
+import com.tradingtols.br.scraper.model.entity.responses.DentalixSearchResponse;
+import com.tradingtols.br.scraper.model.entity.responses.DentalixSearchResponse.ProductData;
+import com.tradingtols.br.scraper.model.entity.responses.DentalixSearchResponse.ProductList;
+import com.tradingtols.br.scraper.model.entity.responses.DentalixSearchResponse.ProductResponse;
 
 @Service
 public class DentaltixCurlScraper extends CurlScraper implements Scraper {

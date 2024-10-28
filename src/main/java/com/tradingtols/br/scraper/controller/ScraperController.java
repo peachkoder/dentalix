@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tradingtols.br.scraper.model.entity.categorias.ProdutoCategoria;
 import com.tradingtols.br.scraper.model.tools.CategoriasExtractor;
 import com.tradingtols.br.scraper.service.ScrapService;
+import com.tradingtols.br.scraper.service.scrappers.curl.CliniclicCurlScraper;
 import com.tradingtols.br.scraper.service.scrappers.curl.DentaltixCurlScraper;
+import com.tradingtols.br.scraper.service.scrappers.curl.DotamedCurlScraper;
+import com.tradingtols.br.scraper.service.scrappers.curl.MontellanoCurlScraper;
 import com.tradingtols.br.scraper.service.scrappers.curl.Scraper;
 
 @RestController
@@ -21,11 +24,19 @@ public class ScraperController {
 	@Autowired
 	private ScrapService scrapService;
 	@Autowired
-	private DentaltixCurlScraper raw;
+	private DentaltixCurlScraper dentaltixScraper;
+	@Autowired
+	private MontellanoCurlScraper montellanoCurlScraper;
+	@Autowired
+	private DotamedCurlScraper  dotamedCurlScraper;
+	@Autowired
+	private CliniclicCurlScraper cliniclicCurlScraper; 
 
 	@GetMapping("/{search}")
 	public void scrap(@PathVariable String search) {
 		//scrapService.scrap();
-		raw.scrap(search);
+//		montellanoCurlScraper.scrap(search);
+//		dotamedCurlScraper.scrap(search);
+		cliniclicCurlScraper.scrap(search);
 	}
 }
