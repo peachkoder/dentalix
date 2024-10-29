@@ -1,0 +1,6 @@
+Apex			get/html	necessita de credenciais
+medical express	get/html
+nordental		get/html	necessita de subqueries para cada artigo
+spdental		get/html
+oralclean		get/html
+manuel-amaro	get/html post/jsn	necessita credenciais

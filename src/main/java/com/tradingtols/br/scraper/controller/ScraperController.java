@@ -12,8 +12,10 @@ import com.tradingtols.br.scraper.model.entity.categorias.ProdutoCategoria;
 import com.tradingtols.br.scraper.model.tools.CategoriasExtractor;
 import com.tradingtols.br.scraper.service.ScrapService;
 import com.tradingtols.br.scraper.service.scrappers.curl.CliniclicCurlScraper;
+import com.tradingtols.br.scraper.service.scrappers.curl.DentalibericaCurlScraper;
 import com.tradingtols.br.scraper.service.scrappers.curl.DentaltixCurlScraper;
 import com.tradingtols.br.scraper.service.scrappers.curl.DotamedCurlScraper;
+import com.tradingtols.br.scraper.service.scrappers.curl.DouromedCurlScraper;
 import com.tradingtols.br.scraper.service.scrappers.curl.MontellanoCurlScraper;
 import com.tradingtols.br.scraper.service.scrappers.curl.Scraper;
 
@@ -31,12 +33,18 @@ public class ScraperController {
 	private DotamedCurlScraper  dotamedCurlScraper;
 	@Autowired
 	private CliniclicCurlScraper cliniclicCurlScraper; 
+	@Autowired
+	private DouromedCurlScraper douromedCurlScraper; 
+	@Autowired
+	private DentalibericaCurlScraper dentalibericaCurlScraper;
 
 	@GetMapping("/{search}")
 	public void scrap(@PathVariable String search) {
 		//scrapService.scrap();
 //		montellanoCurlScraper.scrap(search);
 //		dotamedCurlScraper.scrap(search);
-		cliniclicCurlScraper.scrap(search);
+//		cliniclicCurlScraper.scrap(search);
+//		douromedCurlScraper.scrap(search);
+		dentalibericaCurlScraper.scrap(search);
 	}
 }
