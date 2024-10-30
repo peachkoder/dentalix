@@ -4,7 +4,14 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.tradingtols.br.scraper.model.repository.ProdutoRepository;
+
 public abstract class CurlScraper {
+	
+	@Autowired
+	protected ProdutoRepository repository;
 
 	protected String sendRequest(List<String> command) {
 //			String newURL = String.format(searchUrl, page, search);

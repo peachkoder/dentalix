@@ -46,9 +46,9 @@ public class DentalibericaSearchResponse {
 
 	@JsonIgnoreProperties
 	public static class Pagination {
-		public String total_items;
-		public String current_page;
-		public String pages_count;
+		public int total_items;
+		public int current_page;
+		public int pages_count;
 
 		/*
 		 *  A SER USADO NO FUTURO

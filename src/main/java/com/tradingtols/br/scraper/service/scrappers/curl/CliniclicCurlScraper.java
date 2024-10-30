@@ -12,16 +12,21 @@ import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tradingtols.br.scraper.model.entity.adapters.CliniclicEntityAdapter;
 import com.tradingtols.br.scraper.model.entity.responses.CliniclicSearchResponse;
 
 @Service
 public class CliniclicCurlScraper extends CurlScraper implements Scraper {
+	
+	@Autowired
+	private CliniclicEntityAdapter adapter;
 
 	private static final String URL = "https://nl6s3msh3y-dsn.algolia.net/1/indexes/cc_products_production/"
 			+ "query?x-algolia-agent=Algolia%20for%20JavaScript%20(4.17.0)%3B%20Browser%20(lite)&"
@@ -70,7 +75,8 @@ public class CliniclicCurlScraper extends CurlScraper implements Scraper {
 			}
 			return hit;
 		})
-		.forEach(hit -> System.out.println("\n" + hit.toString()));
+//		.forEach(hit -> System.out.println("\n" + hit.toString()));
+		.forEach(hit -> repository.save(adapter.toEntity(hit)));
 
 	}
 

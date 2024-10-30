@@ -144,7 +144,7 @@ public class ScraperDentalix extends ScraperClazz
 				price = priceContainer.innerText();
 				price = price.substring(oldPrice.innerText().length());
 			}
-			var produto = new ProdutoDentalix(0L, Companias.DENTALIX.getNome(), desc, externalId, href, price, imgSrc, brand, new Date() );
+			var produto = new ProdutoDentalix(0L, Companias.DENTALTIX.getNome(), desc, externalId, href, price, imgSrc, brand, new Date() );
 			repo.save(produto);
 			System.out.println("\n*******************");
 			System.out.println(produto.toString());

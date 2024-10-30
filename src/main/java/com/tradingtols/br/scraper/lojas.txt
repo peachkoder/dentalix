@@ -4,3 +4,8 @@ nordental		get/html	necessita de subqueries para cada artigo
 spdental		get/html
 oralclean		get/html
 manuel-amaro	get/html post/jsn	necessita credenciais
+exomed			get/html
+dentalwave		get/html
+oralclean		get/html
+quirumed		get/html
+ravagnanidental		get/html

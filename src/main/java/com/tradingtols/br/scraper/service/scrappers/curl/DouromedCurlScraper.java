@@ -12,17 +12,22 @@ import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tradingtols.br.scraper.model.entity.adapters.DouromedEntityAdapter;
 import com.tradingtols.br.scraper.model.entity.responses.CliniclicSearchResponse;
 import com.tradingtols.br.scraper.model.entity.responses.DouromedSearchResponse;
 
 @Service
 public class DouromedCurlScraper extends CurlScraper implements Scraper {
+	
+	@Autowired
+	private DouromedEntityAdapter adapter;
 
 	private static final String URL = "https://nl6s3msh3y-dsn.algolia.net/1/indexes/cc_products_production/"
 			+ "query?x-algolia-agent=Algolia%20for%20JavaScript%20(4.17.0)%3B%20Browser%20(lite)&"
@@ -59,7 +64,8 @@ public class DouromedCurlScraper extends CurlScraper implements Scraper {
 		}
 
 		System.out.println("list size = " + list.size());
-		list.stream().forEach(prod -> System.out.println("\n" + prod.toString()));
+//		list.stream().forEach(prod -> System.out.println("\n" + prod.toString()));
+		list.stream().forEach(prod -> repository.save(adapter.toEntity(prod)));
 
 	}
 

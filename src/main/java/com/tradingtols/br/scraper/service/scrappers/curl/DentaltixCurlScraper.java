@@ -15,6 +15,7 @@ import java.util.zip.InflaterInputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.tradingtols.br.scraper.model.entity.adapters.DentaltixEntityAdapter;
 import com.tradingtols.br.scraper.model.entity.responses.DentalixSearchResponse;
 import com.tradingtols.br.scraper.model.entity.responses.DentalixSearchResponse.ProductData;
 import com.tradingtols.br.scraper.model.entity.responses.DentalixSearchResponse.ProductList;
@@ -31,6 +33,9 @@ import com.tradingtols.br.scraper.model.entity.responses.DentalixSearchResponse.
 
 @Service
 public class DentaltixCurlScraper extends CurlScraper implements Scraper {
+	
+	@Autowired
+	private DentaltixEntityAdapter adapter;
 
 	private static final String DENTALTIX_URL = "https://www.dentaltix.com/";
 	private static final String URL = "https://front.dentaltix.com/product/v1/search?"
@@ -77,7 +82,8 @@ public class DentaltixCurlScraper extends CurlScraper implements Scraper {
 		String sendProductHttpRequest = sendProductHttpRequest(jarr.toString());
 		try {
 			var res = mapper.readValue(sendProductHttpRequest, ProductResponse.class);
-			res.data.stream().forEach(pd-> System.out.println("\n" + pd.toString()));
+//			res.data.stream().forEach(pd-> System.out.println("\n" + pd.toString()));
+			res.data.stream().forEach(pd-> repository.save(adapter.toEntity(pd)));//
 		} catch (JsonMappingException  e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

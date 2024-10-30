@@ -15,6 +15,7 @@ import java.util.zip.InflaterInputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.tradingtols.br.scraper.model.entity.adapters.MontellanoEntityAdapter;
 import com.tradingtols.br.scraper.model.entity.responses.DentalixSearchResponse;
 import com.tradingtols.br.scraper.model.entity.responses.DentalixSearchResponse.ProductData;
 import com.tradingtols.br.scraper.model.entity.responses.DentalixSearchResponse.ProductList;
@@ -33,7 +35,10 @@ import com.tradingtols.br.scraper.model.entity.responses.MontellanoSearchRespons
 import com.tradingtols.br.scraper.model.entity.responses.MontellanoSearchResponse.Product2;
 
 @Service
-public class MontellanoCurlScraper  implements Scraper {
+public class MontellanoCurlScraper extends CurlScraper  implements Scraper {
+	
+	@Autowired
+	private MontellanoEntityAdapter adapter;
 
 	private static final String URL = "https://www.montellano.pt/api/products?q=%s&p=%s&limit=100&"
 										+"orderBy[_score]=desc&skip_filters=true&skip_featureds=true";
@@ -76,7 +81,8 @@ public class MontellanoCurlScraper  implements Scraper {
 		}
 		
 		//debug
-		list.stream().parallel().forEach(prod->System.out.println("\n"+prod.toString()));
+//		list.stream().parallel().forEach(prod->System.out.println("\n"+prod.toString()));
+		list.stream().parallel().forEach(prod-> repository.save(adapter.toEntity(prod)));
 	}
 
 

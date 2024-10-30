@@ -16,6 +16,8 @@ import java.util.zip.InflaterInputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import org.aspectj.apache.bcel.Repository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,12 +27,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
+import com.tradingtols.br.scraper.model.entity.adapters.DotamedEntityAdpater;
 import com.tradingtols.br.scraper.model.entity.responses.DotamedSeacrhResponse;
 import com.tradingtols.br.scraper.model.entity.responses.DotamedSeacrhResponse.Product;
+import com.tradingtols.br.scraper.model.repository.ProdutoRepository;
 
 @Service
 public class DotamedCurlScraper  implements Scraper {
+	
+	@Autowired
+	private DotamedEntityAdpater adapter;
+	@Autowired
+	private ProdutoRepository repository;
 
 	private static final String URL = "https://www.montellano.pt/api/products?q=%s&p=%s&limit=100&"
 										+"orderBy[_score]=desc&skip_filters=true&skip_featureds=true";
@@ -73,7 +81,8 @@ public class DotamedCurlScraper  implements Scraper {
 		}
 		
 		//debug
-		list.stream().parallel().forEach(prod->System.out.println("\n"+prod.toString()));
+//		list.stream().parallel().forEach(prod->System.out.println("\n"+prod.toString()));
+		list.stream().forEach(prod-> repository.save(adapter.toEntity(prod)));
 	}
 
 
